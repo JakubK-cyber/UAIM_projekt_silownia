@@ -1,0 +1,37 @@
+services:
+    silownia_redis:
+        container_name: redis_server
+        image: "redis:alpine"
+        ports:
+            - "6379:6379"
+
+    silownia_db:
+        container_name: database_server
+        image: postgres:17
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        environment:
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_USER: postgres
+            POSTGRES_DB: silownia
+
+
+    silownia_api:
+        build: .
+        ports:
+            - 5000:5000
+        volumes:
+            - .:/silownia_api
+        depends_on:
+            silownia_db:
+                condition: service_healthy
+
+volumes:  
+  pgdata: {}

@@ -1,0 +1,13 @@
+flask
+PyJWT
+python-dotenv
+jsonify
+Flask-Argon2
+flask-jwt-extended
+flask-jwt-extended[asymmetric_crypto]
+Flask-SQLAlchemy
+psycopg2-binary
+email-validator
+redis
+flask_cors
+pytest
