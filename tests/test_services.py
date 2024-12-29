@@ -10,7 +10,6 @@ def client():
     with app.test_client() as client:
         yield client
 
-# Test dla listy usług
 def test_list_services_success(client):
     with client.application.app_context():
         response = client.get('/api/services/list')

@@ -10,7 +10,6 @@ def client():
     with app.test_client() as client:
         yield client
 
-# Test pobrania listy trenerów
 def test_list_trainers_success(client):
         response = client.get('/api/trainers/list')
 

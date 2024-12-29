@@ -61,7 +61,6 @@ def test_book_reservation_time_slot_already_booked(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
 
-        # Assuming the user is already logged in and the token is valid
         login_response = client.post('/api/auth/login', json={
             "email": "mariusz.silny@gmail.com",
             "password": "password123"
@@ -70,7 +69,6 @@ def test_book_reservation_time_slot_already_booked(client):
         atoken = login_response.headers.getlist('Set-Cookie')[0].split(";")[0].split("=")[1]
         x_csrf_token = login_response.headers.getlist('Set-Cookie')[1].split(";")[0].split("=")[1]
 
-        # Book the same slot twice
         reservation_data = {
             "trainer_id": trainer1,
             "date": "2025-11-28 10:00:00"
@@ -80,7 +78,6 @@ def test_book_reservation_time_slot_already_booked(client):
             "X-CSRF-TOKEN": x_csrf_token
         })
 
-        # Attempt to book the same slot again
         response = client.post('/api/reservations/book', json=reservation_data, headers={
             "Authorization": f"Bearer {atoken}",
             "X-CSRF-TOKEN": x_csrf_token
@@ -88,18 +85,15 @@ def test_book_reservation_time_slot_already_booked(client):
         assert response.status_code == 400
         assert response.json == {"message": "Time slot already booked"}
 
-# Cancellation tests
 def test_cancel_reservation_success(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
 
-        # Create a reservation for the logged-in user
         user = User.query.filter_by(email="mariusz.silny@gmail.com").first()
         reservation = Reservation(user_id=user.user_id, trainer_id=trainer1, date=datetime.strptime("2024-12-28 10:00:00", "%Y-%m-%d %H:%M:%S"))
         db.session.add(reservation)
         db.session.commit()
 
-        # Assuming the user is already logged in and the token is valid
         login_response = client.post('/api/auth/login', json={
             "email": "mariusz.silny@gmail.com",
             "password": "password123"
@@ -108,7 +102,6 @@ def test_cancel_reservation_success(client):
         atoken = login_response.headers.getlist('Set-Cookie')[0].split(";")[0].split("=")[1]
         x_csrf_token = login_response.headers.getlist('Set-Cookie')[1].split(";")[0].split("=")[1]
 
-        # Cancel the reservation
         response = client.delete(f'/api/reservations/cancel/{reservation.reservation_id}', headers={
             "Authorization": f"Bearer {atoken}",
             "X-CSRF-TOKEN": x_csrf_token
@@ -125,7 +118,6 @@ def test_cancel_reservation_not_found(client):
     atoken = login_response.headers.getlist('Set-Cookie')[0].split(";")[0].split("=")[1]
     x_csrf_token = login_response.headers.getlist('Set-Cookie')[1].split(";")[0].split("=")[1]
 
-    # Attempt to cancel a reservation that doesn't exist
     response = client.delete('/api/reservations/cancel/9999', headers={
         "Authorization": f"Bearer {atoken}",
         "X-CSRF-TOKEN": x_csrf_token
