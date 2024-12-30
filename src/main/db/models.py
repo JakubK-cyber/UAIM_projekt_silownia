@@ -57,6 +57,7 @@ class Trainer(db.Model):
     expertise = db.Column(db.String(120), nullable=False)
     ratings = db.relationship('TrainerRating', backref='trainer', lazy=True)
     calendar = db.relationship('Reservation', backref='trainer', lazy=True)
+    availability = db.relationship('TrainerCalendar', backref='trainer', lazy=True)
 
     def to_dict(self):
         return {
@@ -65,7 +66,8 @@ class Trainer(db.Model):
             'surname': self.surname,
             'expertise': self.expertise,
             'ratings': [rating.rating_id for rating in self.ratings],
-            'calendar': [reservation.reservation_id for reservation in self.calendar]
+            'calendar': [reservation.reservation_id for reservation in self.calendar],
+            'availability': [entry.availability_id for entry in self.availability]
         }
 
 class TrainerRating(db.Model):
@@ -85,6 +87,21 @@ class TrainerRating(db.Model):
             'rating': self.rating,
             'comment': self.comment,
             'created_at': self.created_at
+        }
+
+class TrainerCalendar(db.Model):
+    __tablename__ = 'trainer_calendar'
+    availability_id = db.Column(db.Integer, primary_key=True)
+    trainer_id = db.Column(UUID(as_uuid=True), db.ForeignKey('trainers.trainer_id'), nullable=False)
+    available_from = db.Column(db.DateTime, nullable=False)
+    available_to = db.Column(db.DateTime, nullable=False)
+
+    def to_dict(self):
+        return {
+            'availability_id': self.availability_id,
+            'trainer_id': self.trainer_id,
+            'available_from': self.available_from,
+            'available_to': self.available_to
         }
 
 class Service(db.Model):

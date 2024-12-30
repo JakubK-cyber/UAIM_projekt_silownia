@@ -1,9 +1,9 @@
 from src.main.extensions import db, argon2
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 from sqlalchemy import text
 from email_validator import validate_email, EmailNotValidError
-from src.main.db.models import User, Trainer, Service, Reservation, TrainingHistory, TrainerRating, user_service
+from src.main.db.models import User, Trainer, Service, Reservation, TrainingHistory, TrainerRating, TrainerCalendar, user_service
 from sqlalchemy.dialects.postgresql import UUID
 
 
@@ -30,8 +30,8 @@ class DataBaseInitializer:
             service1 = Service(name='Trening personalny', description='trening poprzez zabawe, duzo gier', price=50.0)
             service2 = Service(name='Yoga', description='Cwiczenia z Yogi dla kazdego', price=30.0)
 
-            reservation1 = Reservation(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime.utcnow(), status='scheduled')
-            reservation2 = Reservation(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime.utcnow(), status='completed')
+            reservation1 = Reservation(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime(2025, 3, 19, 9, 0), status='scheduled')
+            reservation2 = Reservation(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime(2025, 3, 19, 9, 0), status='scheduled')
 
             training_history1 = TrainingHistory(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime.utcnow(), details='Trening silowy')
             training_history2 = TrainingHistory(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime.utcnow(), details='Yoga dla rozciagliwych')
@@ -39,7 +39,12 @@ class DataBaseInitializer:
             rating1 = TrainerRating(trainer_id=trainer1.trainer_id, user_id=user1.user_id, rating=5, comment='Super zajecia', created_at=datetime.utcnow())
             rating2 = TrainerRating(trainer_id=trainer2.trainer_id, user_id=user2.user_id, rating=4, comment='Prawie idealnie.', created_at=datetime.utcnow())
 
-            db.session.add_all([service1, service2, reservation1, reservation2, training_history1, training_history2, rating1, rating2])
+            availability1 = TrainerCalendar(trainer_id=trainer1.trainer_id, available_from=datetime(2025, 3, 19, 9, 0), available_to=datetime(2025, 3, 19, 14, 0))
+            availability2 = TrainerCalendar(trainer_id=trainer1.trainer_id, available_from=datetime(2025, 3, 20, 9, 0), available_to=datetime(2025, 3, 20, 14, 0))
+            availability3 = TrainerCalendar(trainer_id=trainer2.trainer_id, available_from=datetime(2025, 3, 19, 9, 0), available_to=datetime(2025, 3, 19, 14, 0))
+            availability4 = TrainerCalendar(trainer_id=trainer2.trainer_id, available_from=datetime(2025, 3, 20, 9, 0), available_to=datetime(2025, 3, 20, 14, 0))
+
+            db.session.add_all([service1, service2, reservation1, reservation2, training_history1, training_history2, rating1, rating2, availability1, availability2, availability3, availability4])
 
             user1.services.append(service1)
             user2.services.append(service2)
@@ -57,6 +62,7 @@ class DataBaseInitializer:
             db.session.query(user_service).delete()
 
             db.session.query(TrainerRating).delete()
+            db.session.query(TrainerCalendar).delete()
             db.session.query(TrainingHistory).delete()
             db.session.query(Reservation).delete()
 
