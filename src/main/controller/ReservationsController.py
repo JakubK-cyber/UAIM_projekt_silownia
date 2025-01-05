@@ -47,11 +47,13 @@ def cancel_reservation(reservation_id):
     return jsonify({"message": "Reservation canceled"}), 200
 
 @reservations_bp.route("/availability/<trainer_id>", methods=["GET"])
+@jwt_required(optional=True)
 def get_trainer_availability(trainer_id):
     trainer = Trainer.query.get(trainer_id)
     if not trainer:
         return jsonify({"message": "Trainer not found"}), 404
 
+    user_id = get_jwt_identity()
     calendar_entries = TrainerCalendar.query.filter_by(trainer_id=trainer_id).all()
     reservations = Reservation.query.filter_by(trainer_id=trainer_id).all()
 
@@ -62,11 +64,19 @@ def get_trainer_availability(trainer_id):
         while current_time < entry.available_to:
             slot_end = current_time + timedelta(minutes=60)
 
-            if not any(reservation.date == current_time for reservation in reservations):
-                availability.append({
-                    "start": current_time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "end": slot_end.strftime("%Y-%m-%d %H:%M:%S")
-                })
+            reservation = next(
+                (res for res in reservations if res.date == current_time),
+                None
+            )
+            is_booked = 1 if reservation else 0
+            reservation_id = reservation.reservation_id if reservation and reservation.user_id == user_id else None
+
+            availability.append({
+                "start": current_time.strftime("%Y-%m-%d %H:%M:%S"),
+                "end": slot_end.strftime("%Y-%m-%d %H:%M:%S"),
+                "is_booked": is_booked,
+                "reservation_id": reservation_id
+            })
 
             current_time = slot_end
 

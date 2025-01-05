@@ -14,13 +14,27 @@ def client():
 def test_get_trainer_availability(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
+        user = User.query.filter_by(email="mariusz.silny@gmail.com").first()
 
-        response = client.get(f'/api/reservations/availability/{trainer1}')
+        login_response = client.post('/api/auth/login', json={
+            "email": "mariusz.silny@gmail.com",
+            "password": "password123"
+        })
+
+        atoken = login_response.headers.getlist('Set-Cookie')[0].split(";")[0].split("=")[1]
+        x_csrf_token = login_response.headers.getlist('Set-Cookie')[1].split(";")[0].split("=")[1]
+
+        response = client.get(f'/api/reservations/availability/{trainer1}', headers={
+            "Authorization": f"Bearer {atoken}",
+            "X-CSRF-TOKEN": x_csrf_token
+        })
         assert response.status_code == 200
         availability = response.json.get('availability')
         print(availability)
         assert availability is not None
-        assert availability == [{'end': '2025-03-19 11:00:00', 'start': '2025-03-19 10:00:00'}, {'end': '2025-03-19 12:00:00', 'start': '2025-03-19 11:00:00'}, {'end': '2025-03-19 13:00:00', 'start': '2025-03-19 12:00:00'}, {'end': '2025-03-19 14:00:00', 'start': '2025-03-19 13:00:00'}, {'end': '2025-03-20 10:00:00', 'start': '2025-03-20 09:00:00'}, {'end': '2025-03-20 11:00:00', 'start': '2025-03-20 10:00:00'}, {'end': '2025-03-20 12:00:00', 'start': '2025-03-20 11:00:00'}, {'end': '2025-03-20 13:00:00', 'start': '2025-03-20 12:00:00'}, {'end': '2025-03-20 14:00:00', 'start': '2025-03-20 13:00:00'}]
+        assert any(slot['start'] == '2025-03-19 11:00:00' and slot['is_booked'] == 0 and slot['reservation_id'] == None for slot in availability)
+        assert availability == [{'end': '2025-03-19 10:00:00', 'is_booked': 1, 'reservation_id': None, 'start': '2025-03-19 09:00:00'}, {'end': '2025-03-19 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 10:00:00'}, {'end': '2025-03-19 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 11:00:00'}, {'end': '2025-03-19 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 12:00:00'}, {'end': '2025-03-19 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 13:00:00'}, {'end': '2025-03-20 10:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 09:00:00'}, {'end': '2025-03-20 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 10:00:00'}, {'end': '2025-03-20 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 11:00:00'}, {'end': '2025-03-20 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 12:00:00'}, {'end': '2025-03-20 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 13:00:00'}]
+
 def test_book_reservation_success(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id

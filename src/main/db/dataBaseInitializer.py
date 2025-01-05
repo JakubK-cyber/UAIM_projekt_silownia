@@ -33,8 +33,8 @@ class DataBaseInitializer:
             reservation1 = Reservation(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime(2025, 3, 19, 9, 0), status='scheduled')
             reservation2 = Reservation(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime(2025, 3, 19, 9, 0), status='scheduled')
 
-            training_history1 = TrainingHistory(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime.utcnow(), details='Trening silowy')
-            training_history2 = TrainingHistory(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime.utcnow(), details='Yoga dla rozciagliwych')
+            training_history1 = TrainingHistory(user_id=user1.user_id, trainer_id=trainer1.trainer_id, date=datetime(2025, 3, 19, 9, 0), details='Trening silowy')
+            training_history2 = TrainingHistory(user_id=user2.user_id, trainer_id=trainer2.trainer_id, date=datetime(2025, 3, 19, 9, 0), details='Yoga dla rozciagliwych')
 
             rating1 = TrainerRating(trainer_id=trainer1.trainer_id, user_id=user1.user_id, rating=5, comment='Super zajecia', created_at=datetime.utcnow())
             rating2 = TrainerRating(trainer_id=trainer2.trainer_id, user_id=user2.user_id, rating=4, comment='Prawie idealnie.', created_at=datetime.utcnow())
