@@ -11,7 +11,7 @@ def client():
     with app.test_client() as client:
         yield client
 
-
+# Test wypisania historii treningów
 def test_list_training_history_success(client):
     login_response = client.post('/api/auth/login', json={
             "email": "mariusz.silny@gmail.com",

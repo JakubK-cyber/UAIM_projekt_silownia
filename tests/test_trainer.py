@@ -10,6 +10,7 @@ def client():
     with app.test_client() as client:
         yield client
 
+# TEst wypisania listy trenerów
 def test_list_trainers_success(client):
         response = client.get('/api/trainers/list')
 
@@ -19,7 +20,7 @@ def test_list_trainers_success(client):
         assert data[0]['name'] == 'Anna'
         assert data[1]['name'] == 'Ewa'
 
-
+# Test wypisania oceny trenera
 def test_trainer_ratings_success(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -31,6 +32,7 @@ def test_trainer_ratings_success(client):
         assert len(data) == 1
         assert data[0]['rating'] == 5
 
+# Test dodania nowej oceny trenerowi
 def test_trainer_ratings_add_success(client):
     with client.application.app_context():
         login_response = client.post('/api/auth/login', json={

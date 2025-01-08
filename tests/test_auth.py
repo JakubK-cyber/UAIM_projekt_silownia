@@ -4,38 +4,36 @@ from app import create_app
 from src.main.extensions import db
 from src.main.db.models import User
 
+# Fixture dla klienta testowego Flask, który jest używany do wysyłania żądań HTTP do aplikacji
 @pytest.fixture
 def client():
     app = create_app()
     with app.test_client() as client:
             yield client
 
+# Test dla pomyślnej rejestracji użytkownika
 def test_register_success(client):
     response = client.post('/api/auth/register', json={
-        "name": "John1",
-        "surname": "Doe1",
-        "password": "S3cureP@ssw0rd",
-        "email": "johndoe1@test.com"
+        "name": "Julia",
+        "surname": "Szeremta",
+        "password": "ABC123qwer",
+        "email": "julka@gmail.com"
     })
     assert response.status_code == 201
     assert response.json == {"message": "Account created successfully."}
 
+# Test dla rejestracji z brakującymi polami
 def test_register_missing_fields(client):
     response = client.post('/api/auth/register', json={
-        "name": "John",
-        "surname": "Doe",
-        "password": "S3cureP@ssw0rd"
+        "name": "Kamil",
+        "surname": "Stoch",
+        "password": "BezpieczneDlugieHaslo"
     })
     assert response.status_code == 400
     assert response.json == {"message": "All fields are required."}
 
+# Test dla rejestracji z istniejącym adresem email
 def test_register_existing_email(client):
-    client.post('/api/auth/register', json={
-        "name": "Wojciech",
-        "surname": "Jakubowski",
-        "password": "S3cureP@ssw0rd",
-        "email": "mariusz.silny@gmail.com"
-    })
     response = client.post('/api/auth/register', json={
         "name": "Wojciech",
         "surname": "Jakubowski",
@@ -45,6 +43,7 @@ def test_register_existing_email(client):
     assert response.status_code == 400
     assert response.json == {"message": "User with this email already exists."}
 
+# Test dla pomyślnego logowania
 def test_login_success(client):
     response = client.post('/api/auth/login', json={
         "email": "mariusz.silny@gmail.com",
@@ -53,14 +52,16 @@ def test_login_success(client):
     assert response.status_code == 200
     assert response.json["message"] == "Login successful."
 
+# Test dla logowania z niepoprawnymi danymi
 def test_login_invalid_credentials(client):
     response = client.post('/api/auth/login', json={
-        "email": "invalid@example.com",
+        "email": "invalid@gmail.com",
         "password": "wrongpassword"
     })
     assert response.status_code == 401
     assert response.json == {"message": "Invalid email or password."}
 
+# Test dla pomyślnego wylogowania
 def test_logout(client):
     login_response = client.post('/api/auth/login', json={
         "email": "mariusz.silny@gmail.com",
@@ -77,6 +78,7 @@ def test_logout(client):
     assert response.status_code == 200
     assert response.json == {"message": "Logout successful."}
 
+# Test dla odświeżenia tokenu
 def test_refresh_token(client):
     login_response = client.post('/api/auth/login', json={
         "email": "mariusz.silny@gmail.com",

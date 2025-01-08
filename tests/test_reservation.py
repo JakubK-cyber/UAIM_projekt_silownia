@@ -11,6 +11,7 @@ def client():
     with app.test_client() as client:
         yield client
 
+# Test sprawdzający dostępność trenera
 def test_get_trainer_availability(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -35,6 +36,7 @@ def test_get_trainer_availability(client):
         assert any(slot['start'] == '2025-03-19 11:00:00' and slot['is_booked'] == 0 and slot['reservation_id'] == None for slot in availability)
         assert availability == [{'end': '2025-03-19 10:00:00', 'is_booked': 1, 'reservation_id': None, 'start': '2025-03-19 09:00:00'}, {'end': '2025-03-19 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 10:00:00'}, {'end': '2025-03-19 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 11:00:00'}, {'end': '2025-03-19 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 12:00:00'}, {'end': '2025-03-19 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 13:00:00'}, {'end': '2025-03-20 10:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 09:00:00'}, {'end': '2025-03-20 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 10:00:00'}, {'end': '2025-03-20 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 11:00:00'}, {'end': '2025-03-20 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 12:00:00'}, {'end': '2025-03-20 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 13:00:00'}]
 
+# Test rezerwacji terminu u trenera z powodzeniem
 def test_book_reservation_success(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -58,6 +60,7 @@ def test_book_reservation_success(client):
         })
         assert response.status_code == 201
 
+# Test próby rezerwacji terminu u nieistniejącego trenera
 def test_book_reservation_trainer_not_found(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -81,6 +84,7 @@ def test_book_reservation_trainer_not_found(client):
         assert response.status_code == 404
         assert response.json == {"message": "Trainer not found"}
 
+# Test próby rezerwacji już zajętego przedziału czasowego
 def test_book_reservation_time_slot_already_booked(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -95,7 +99,7 @@ def test_book_reservation_time_slot_already_booked(client):
 
         reservation_data = {
             "trainer_id": trainer1,
-            "date": "2025-11-28 10:00:00"
+            "date": "2025-03-19 09:00:00"
         }
         client.post('/api/reservations/book', json=reservation_data, headers={
             "Authorization": f"Bearer {atoken}",
@@ -109,6 +113,7 @@ def test_book_reservation_time_slot_already_booked(client):
         assert response.status_code == 400
         assert response.json == {"message": "Time slot already booked"}
 
+# Test anulowania rezerwacji z powodzeniem
 def test_cancel_reservation_success(client):
     with client.application.app_context():
         trainer1 = Trainer.query.filter_by(name="Anna").first().trainer_id
@@ -133,6 +138,7 @@ def test_cancel_reservation_success(client):
         assert response.status_code == 200
         assert response.json == {"message": "Reservation canceled"}
 
+# Test próby anulowania nieistniejącej rezerwacji
 def test_cancel_reservation_not_found(client):
     login_response = client.post('/api/auth/login', json={
         "email": "mariusz.silny@gmail.com",

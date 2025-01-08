@@ -4,12 +4,14 @@ from email_validator import validate_email, EmailNotValidError
 from uuid import uuid4
 from sqlalchemy.dialects.postgresql import UUID
 
+# Definicja tabeli pomocniczej dla relacji wiele-do-wielu między użytkownikami a usługami
 user_service = db.Table(
     'user_service',
     db.Column('user_id', UUID(as_uuid=True), db.ForeignKey('users.user_id'), primary_key=True),
     db.Column('service_id', db.Integer, db.ForeignKey('services.service_id'), primary_key=True)
 )
 
+# Model użytkownika
 class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -23,12 +25,15 @@ class User(db.Model):
     ratings = db.relationship('TrainerRating', backref='user', lazy=True)
     services = db.relationship('Service', secondary=user_service, back_populates='users')
 
+    # Ustawianie hasła użytkownika
     def set_password(self, password):
         self.password_hash = argon2.generate_password_hash(password)
 
+     # Weryfikacja hasła użytkownika
     def verify_password(self, password):
         return argon2.check_password_hash(self.password_hash, password)
 
+    # Walidacja adresu email użytkownika
     def validate_email(self):
         try:
             validate_email(self.email)
@@ -49,6 +54,7 @@ class User(db.Model):
             'services': [service.service_id for service in self.services]
         }
 
+# Model trenera
 class Trainer(db.Model):
     __tablename__ = 'trainers'
     trainer_id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -70,6 +76,7 @@ class Trainer(db.Model):
             'availability': [entry.availability_id for entry in self.availability]
         }
 
+# Model oceny trenera
 class TrainerRating(db.Model):
     __tablename__ = 'trainer_ratings'
     rating_id = db.Column(db.Integer, primary_key=True)
@@ -89,6 +96,7 @@ class TrainerRating(db.Model):
             'created_at': self.created_at
         }
 
+# Model kalendarza dostępności trenera
 class TrainerCalendar(db.Model):
     __tablename__ = 'trainer_calendar'
     availability_id = db.Column(db.Integer, primary_key=True)
@@ -104,6 +112,7 @@ class TrainerCalendar(db.Model):
             'available_to': self.available_to
         }
 
+# Model usługi
 class Service(db.Model):
     __tablename__ = 'services'
     service_id = db.Column(db.Integer, primary_key=True)
@@ -121,6 +130,7 @@ class Service(db.Model):
             'users': [user.user_id for user in self.users]
         }
 
+# Model rezerwacji
 class Reservation(db.Model):
     __tablename__ = 'reservations'
     reservation_id = db.Column(db.Integer, primary_key=True)
@@ -138,6 +148,7 @@ class Reservation(db.Model):
             'status': self.status
         }
 
+# Model historii treningów
 class TrainingHistory(db.Model):
     __tablename__ = 'training_history'
     training_id = db.Column(db.Integer, primary_key=True)

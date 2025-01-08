@@ -6,7 +6,7 @@ from email_validator import validate_email, EmailNotValidError
 from src.main.db.models import User, Trainer, Service, Reservation, TrainingHistory, TrainerRating, TrainerCalendar, user_service
 from sqlalchemy.dialects.postgresql import UUID
 
-
+# Dodanie przykładowych danych do bazy
 class DataBaseInitializer:
     @staticmethod
     def init_db():
