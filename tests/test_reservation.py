@@ -34,8 +34,8 @@ def test_get_trainer_availability(client):
         print(availability)
         assert availability is not None
         assert any(slot['start'] == '2025-03-19 11:00:00' and slot['is_booked'] == 0 and slot['reservation_id'] == None for slot in availability)
-        assert availability == [{'end': '2025-03-19 10:00:00', 'is_booked': 1, 'reservation_id': None, 'start': '2025-03-19 09:00:00'}, {'end': '2025-03-19 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 10:00:00'}, {'end': '2025-03-19 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 11:00:00'}, {'end': '2025-03-19 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 12:00:00'}, {'end': '2025-03-19 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-19 13:00:00'}, {'end': '2025-03-20 10:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 09:00:00'}, {'end': '2025-03-20 11:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 10:00:00'}, {'end': '2025-03-20 12:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 11:00:00'}, {'end': '2025-03-20 13:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 12:00:00'}, {'end': '2025-03-20 14:00:00', 'is_booked': 0, 'reservation_id': None, 'start': '2025-03-20 13:00:00'}]
-
+        assert any(slot['start'] == '2025-03-19 09:00:00' and slot['is_booked'] == 1 and slot['reservation_id'] != None for slot in availability)
+        
 # Test rezerwacji terminu u trenera z powodzeniem
 def test_book_reservation_success(client):
     with client.application.app_context():

@@ -54,7 +54,7 @@ def cancel_reservation(reservation_id):
 
 # Endpoint sprawdzania dostępności trenera
 @reservations_bp.route("/availability/<trainer_id>", methods=["GET"])
-@jwt_required(optional=True)  # Opcjonalne uwierzytelnienie JWT
+@jwt_required()  # Opcjonalne uwierzytelnienie JWT
 def get_trainer_availability(trainer_id):
     trainer = Trainer.query.get(trainer_id)  # Pobranie danych trenera
     if not trainer:
@@ -77,7 +77,7 @@ def get_trainer_availability(trainer_id):
                 None
             )
             is_booked = 1 if reservation else 0  # Flaga oznaczająca, czy slot jest zarezerwowany
-            reservation_id = reservation.reservation_id if reservation and reservation.user_id == user_id else None  # ID rezerwacji użytkownika
+            reservation_id = reservation.reservation_id if reservation else None
 
             # Dodanie informacji o slotach do listy dostępności
             availability.append({
