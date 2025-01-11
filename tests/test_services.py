@@ -17,6 +17,7 @@ def test_list_services_success(client):
 
         assert response.status_code == 200
         data = response.json
+        print(data)
         assert len(data) == 2
         assert data[0]['name'] == 'Trening personalny'
         assert data[1]['name'] == 'Yoga'
