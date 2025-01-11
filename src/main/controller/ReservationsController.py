@@ -77,7 +77,10 @@ def get_trainer_availability(trainer_id):
                 None
             )
             is_booked = 1 if reservation else 0  # Flaga oznaczająca, czy slot jest zarezerwowany
-            reservation_id = reservation.reservation_id if reservation else None
+            
+            reservation_id = None
+            if is_booked:
+                reservation_id = reservation.reservation_id if str(reservation.user_id) == str(user_id) else None  # ID rezerwacji użytkownika
 
             # Dodanie informacji o slotach do listy dostępności
             availability.append({
