@@ -18,7 +18,6 @@ def register_extensions(app):
 # Funkcja tworząca i konfigurująca aplikację Flask
 def create_app():
     app = Flask(__name__)
-    #CORS(app, resources={r"/*": {"origins": "*"}})
     CORS(app, resources={r"/*": {"origins": "127.0.0.1:5000"}})
 
     # Konfiguracja aplikacji Flask
