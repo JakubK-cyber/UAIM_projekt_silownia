@@ -18,7 +18,8 @@ def register_extensions(app):
 # Funkcja tworząca i konfigurująca aplikację Flask
 def create_app():
     app = Flask(__name__)
-    CORS(app, resources={r"/*": {"origins": "127.0.0.1:5000"}})
+    # CORS(app, resources={r"/*": {"origins": "127.0.0.1:5000"}})
+    CORS(app, resources={r"/*": {"origins":"http://localhost:3000"}}, supports_credentials=True)
 
     # Konfiguracja aplikacji Flask
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@silownia_db:5432/silownia' # URI bazy danych PostgreSQL
